@@ -8,7 +8,7 @@ package ull.alu0100892833.pai.parabolic_shot;
  * @since 27-4-2017
  */
 public class ParabolicShot {
-	public static final double GRAVITY_ACCELERATION = -9.81;
+	public static final double GRAVITY_ACCELERATION = 9.81;
 	private static final double HALF = 0.5;
 	
 	private double outputSpeed, launchAngle;

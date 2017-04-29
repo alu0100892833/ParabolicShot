@@ -11,13 +11,12 @@ import ull.alu0100892833.pai.parabolic_shot.ParabolicShot;
 
 public class ProjectilePanel extends JPanel {
 	private static final long serialVersionUID = 6509639337136291378L;
-	private static final int DEFAULT_X_VALUES = 500;
-	private static final int DEFAULT_Y_VALUES = 250;
-	private static final int GAP_PROPORTION = 8;
+	private static final int GAP_PROPORTION = 15;
 	private static final int STARTING_TIME = 0;
 	private static final int TWO_SIDES = 2;
-	private static final int SMALL_LINE_LENGTH = 10;
-	private static final int POINT_RADIUS = 2;
+	private static final int SMALL_LINE_LENGTH = 5;
+	private static final int POINT_RADIUS = 5;
+	private static final int LINE_EXTRA_THICKNESS = 1;
 	private static final int POINT_DIAMETER = 2 * POINT_RADIUS;
 	private static final Color[] STROKE_COLORS = {Color.BLACK, Color.YELLOW, Color.GREEN, Color.RED, Color.BLUE};
 
@@ -27,8 +26,8 @@ public class ProjectilePanel extends JPanel {
 	
 	public ProjectilePanel(ParabolicShot shot) {
 		this.data = shot;
-		this.xValues = DEFAULT_X_VALUES;
-		this.yValues = DEFAULT_Y_VALUES;
+		this.xValues = data.distance();
+		this.yValues = data.maximumHeight();
 		this.currentTime = STARTING_TIME;
 		this.drawingTrajectory = true;
 		this.showingComplementaryData = true; 
@@ -91,16 +90,12 @@ public class ProjectilePanel extends JPanel {
 	}
 	
 	private int realX(int xValue) {
-		int xRealPosition = getOrigin().x;
-		for (int i = 1; i <= xValue; i++)
-			xRealPosition += horizontalGap() * i;
+		int xRealPosition = getOrigin().x + horizontalValuesSeparation() * xValue;
 		return xRealPosition;
 	}
 	
 	private int realY(int yValue) {
-		int yRealPosition = getOrigin().y;
-		for (int i = 1; i <= yValue; i++)
-			yRealPosition += verticalGap() * i;
+		int yRealPosition = getOrigin().y - verticalValuesSeparation() * yValue;
 		return yRealPosition;
 	}
 	
@@ -124,24 +119,30 @@ public class ProjectilePanel extends JPanel {
 	
 	private void paintAxis(Graphics graphics) {
 		Point origin = getOrigin();
-		int xValuesGap = (getWidth() - horizontalGap() * TWO_SIDES) / getxValues();
-		int yValuesGap = (getHeight() - verticalGap() * TWO_SIDES) / getyValues();
 		graphics.setColor(Color.BLACK);
 		
 		// DRAW X-AXIS
-		graphics.drawLine(origin.x, origin.y, origin.x + getxValues(), origin.y);
+		graphics.drawLine(origin.x, origin.y, realX(data.distance()), origin.y);
+		graphics.drawLine(origin.x, origin.y + LINE_EXTRA_THICKNESS, 
+				realX(data.distance()), origin.y + LINE_EXTRA_THICKNESS);
+		graphics.drawLine(origin.x, origin.y - LINE_EXTRA_THICKNESS, 
+				realX(data.distance()), origin.y - LINE_EXTRA_THICKNESS);
 		// DRAW Y-AXIS
-		graphics.drawLine(origin.x, origin.y, origin.x, origin.y - getyValues());
+		graphics.drawLine(origin.x, origin.y, origin.x, realY(data.maximumHeight()));
+		graphics.drawLine(origin.x + LINE_EXTRA_THICKNESS, origin.y, 
+				origin.x + LINE_EXTRA_THICKNESS, realY(data.maximumHeight()));
+		graphics.drawLine(origin.x - LINE_EXTRA_THICKNESS, origin.y, 
+				origin.x - LINE_EXTRA_THICKNESS, realY(data.maximumHeight()));
 		
 		// PAINT THE SMALL LINES SEPARATING VALUES FOR THE X-AXIS
 		for (int xIterator = 0; xIterator <= getxValues(); xIterator++) {
-			graphics.drawLine(origin.x + xIterator * xValuesGap, origin.y, 
-					origin.x + xIterator * xValuesGap, origin.y - SMALL_LINE_LENGTH);
+			graphics.drawLine(realX(xIterator), origin.y, 
+					realX(xIterator), origin.y - SMALL_LINE_LENGTH);
 		}
 		// PAINT THE SMALL LINES SEPARATING VALUES FOR THE Y-AXIS
 		for (int yIterator = 0; yIterator <= getyValues(); yIterator++) {
-			graphics.drawLine(origin.x, origin.y - yIterator * yValuesGap, 
-					origin.x + SMALL_LINE_LENGTH, origin.y - yIterator * yValuesGap);
+			graphics.drawLine(origin.x, realY(yIterator), 
+					origin.x + SMALL_LINE_LENGTH, realY(yIterator));
 		}
 	}
 	
@@ -156,10 +157,10 @@ public class ProjectilePanel extends JPanel {
 	
 	private void paintReferencePoints(Graphics graphics) {
 		graphics.setColor(Color.BLACK);
-		graphics.fillOval(getOrigin().x - POINT_RADIUS, data.getInitialHeight() - POINT_RADIUS, 
+		graphics.fillOval(getOrigin().x - POINT_RADIUS, realY(data.getInitialHeight()) - POINT_RADIUS, 
 				POINT_RADIUS * TWO_SIDES, POINT_RADIUS * TWO_SIDES);
-		Point finalPoint = new Point(realX(data.distance()), getOrigin().y);
-		graphics.fillOval(finalPoint.x - POINT_RADIUS, finalPoint.y - POINT_RADIUS, 
+		Point finalPoint = new Point(realX(data.distance()), realY(0));
+		graphics.fillOval(finalPoint.x - POINT_RADIUS, getOrigin().y - POINT_RADIUS, 
 				POINT_DIAMETER, POINT_DIAMETER);
 	}
 	
@@ -175,14 +176,22 @@ public class ProjectilePanel extends JPanel {
 	}
 	
 	private int verticalGap() {
-		return getHeight() - getHeight() / GAP_PROPORTION;
+		return getHeight() / GAP_PROPORTION;
 	}
 	
 	private int horizontalGap() {
-		return getWidth() - getWidth() / GAP_PROPORTION;
+		return getWidth() / GAP_PROPORTION;
 	}
 	
+	private int horizontalValuesSeparation() {
+		int range = getWidth() - TWO_SIDES * horizontalGap();
+		return range / getxValues();
+	}
 	
+	private int verticalValuesSeparation() {
+		int range = getHeight() - TWO_SIDES * verticalGap();
+		return range / getyValues();
+	}
 }
 
 
