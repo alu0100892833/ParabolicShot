@@ -20,6 +20,7 @@ public class ProjectilePanel extends JPanel {
 	private static final int TWO_SIDES = 2;
 	private static final int SMALL_LINE_LENGTH = 10;
 	private static final int POINT_RADIUS = 2;
+	private static final int POINT_DIAMETER = 2 * POINT_RADIUS;
 	private static final Color[] STROKE_COLORS = {Color.BLACK, Color.YELLOW, Color.GREEN, Color.RED, Color.BLUE};
 
 	private ParabolicShot data;
@@ -91,6 +92,20 @@ public class ProjectilePanel extends JPanel {
 		setCurrentTime(STARTING_TIME);
 	}
 	
+	private int realX(int xValue) {
+		int xRealPosition = getOrigin().x;
+		for (int i = 1; i <= xValue; i++)
+			xRealPosition += horizontalGap() * i;
+		return xRealPosition;
+	}
+	
+	private int realY(int yValue) {
+		int yRealPosition = getOrigin().y;
+		for (int i = 1; i <= yValue; i++)
+			yRealPosition += verticalGap() * i;
+		return yRealPosition;
+	}
+	
 	public void estimateXValues() {
 		setxValues(data.distance());
 	}
@@ -133,18 +148,21 @@ public class ProjectilePanel extends JPanel {
 	}
 	
 	private void paintInformation(Graphics graphics) {
-		
+		// TODO pintar toda la información
 	}
 	
 	private void paintTrajectory(Graphics graphics) {
 		graphics.setColor(getRandomColor());
+		// TODO pintar la trayectoria
 	}
 	
 	private void paintReferencePoints(Graphics graphics) {
 		graphics.setColor(Color.BLACK);
 		graphics.fillOval(getOrigin().x - POINT_RADIUS, data.getInitialHeight() - POINT_RADIUS, 
 				POINT_RADIUS * TWO_SIDES, POINT_RADIUS * TWO_SIDES);
-		// TODO pintar el círculo de destino
+		Point finalPoint = new Point(realX(data.distance()), getOrigin().y);
+		graphics.fillOval(finalPoint.x - POINT_RADIUS, finalPoint.y - POINT_RADIUS, 
+				POINT_DIAMETER, POINT_DIAMETER);
 	}
 	
 	private Color getRandomColor() {
