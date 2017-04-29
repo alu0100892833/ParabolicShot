@@ -7,8 +7,6 @@ import java.util.Random;
 
 import javax.swing.JPanel;
 
-import com.sun.management.VMOption.Origin;
-
 import ull.alu0100892833.pai.parabolic_shot.ParabolicShot;
 
 public class ProjectilePanel extends JPanel {
