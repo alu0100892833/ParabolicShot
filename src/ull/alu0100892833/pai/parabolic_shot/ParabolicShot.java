@@ -10,9 +10,10 @@ package ull.alu0100892833.pai.parabolic_shot;
 public class ParabolicShot {
 	public static final double GRAVITY_ACCELERATION = 9.81;
 	private static final double HALF = 0.5;
+	private static final int NULL_VALUE = 0;
 	
-	private double outputSpeed, launchAngle;
-	private int initialHeight;
+	private double outputSpeed;
+	private int initialHeight, launchAngle;
 
 
 	/**
@@ -21,7 +22,7 @@ public class ParabolicShot {
 	 * @param launchAngle Ángulo de lanzamiento.
 	 * @param initialHeight Altura inicial desde la que se dispara el proyectil.
 	 */
-	public ParabolicShot(double outputSpeed, double launchAngle, int initialHeight) {
+	public ParabolicShot(double outputSpeed, int launchAngle, int initialHeight) {
 		this.outputSpeed = outputSpeed;
 		this.launchAngle = launchAngle;
 		this.initialHeight = initialHeight; 
@@ -33,7 +34,7 @@ public class ParabolicShot {
 	 * @param launchAngle Ángulo de lanzamiento.
 	 * @param initialHeight Altura inicial desde la que se dispara el proyectil.
 	 */
-	public void changeValues(double outputSpeed, double launchAngle, int initialHeight) {
+	public void changeValues(double outputSpeed, int launchAngle, int initialHeight) {
 		this.outputSpeed = outputSpeed;
 		this.launchAngle = launchAngle;
 		this.initialHeight = initialHeight; 
@@ -59,7 +60,7 @@ public class ParabolicShot {
 	 * Retorna el ángulo inicial.
 	 * @return
 	 */
-	public double getStartingAngle() {
+	public int getStartingAngle() {
 		return launchAngle;
 	}
 
@@ -67,7 +68,7 @@ public class ParabolicShot {
 	 * Modificar el ángulo inicial.
 	 * @param startingAngle
 	 */
-	public void setStartingAngle(double startingAngle) {
+	public void setStartingAngle(int startingAngle) {
 		this.launchAngle = startingAngle;
 	}
 
@@ -109,7 +110,9 @@ public class ParabolicShot {
 	 * @return Componente X.
 	 */
 	public int getxAt(int time) {
-		return (int) outputSpeedHorizontalComponent() * time;
+		if (time <= flightTime())
+			return (int) outputSpeedHorizontalComponent() * time;
+		return NULL_VALUE;
 	}
 	
 	/**
@@ -118,7 +121,9 @@ public class ParabolicShot {
 	 * @return Componente Y.
 	 */
 	public int getyAt(int time) {
-		return (int) (getInitialHeight() + outputSpeedVerticalComponent() * time - HALF * GRAVITY_ACCELERATION * Math.pow(time, 2));
+		if (time <= flightTime())
+			return (int) (getInitialHeight() + outputSpeedVerticalComponent() * time - HALF * GRAVITY_ACCELERATION * Math.pow(time, 2));
+		return NULL_VALUE;
 	}
 	
 	/**

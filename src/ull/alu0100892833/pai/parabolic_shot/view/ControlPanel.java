@@ -7,6 +7,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
@@ -29,6 +30,8 @@ public class ControlPanel extends JPanel {
 	public static final int INITIAL_HEIGHT = 0;
 	private static final int MIN_INITIAL_HEIGHT = 0;
 	private static final int MAX_INITIAL_HEIGHT = 30;
+	private static final int TEXT_GAP = 9;
+	private static final int TEXT_LATERAL_GAP = 0;
 	
 	JButton throwButton, pauseButton, resetButton; 
 	JSlider speedSlider, angleSlider, heightSlider;
@@ -64,13 +67,21 @@ public class ControlPanel extends JPanel {
 		slidersPanel.add(angleSlider);
 		slidersPanel.add(heightSlider);
 		
+		JPanel infoPanel = new JPanel(new GridLayout(N_SLIDERS, SLIDERS_COLUMNS, TEXT_LATERAL_GAP, TEXT_GAP));
+		infoPanel.add(new JLabel("SPEED"));
+		infoPanel.add(new JLabel("ANGLE"));
+		infoPanel.add(new JLabel("HEIGHT"));
+		
 		add(slidersPanel);
+		add(infoPanel);
 	}
 	
 	private void addCheckBoxes() {
 		this.showSpeed = new JCheckBox("SHOW SPEED");
 		this.showPositionVector = new JCheckBox("SHOW POSITION VECTOR");
 		this.showTrajectory = new JCheckBox("SHOW TRAJECTORY");
+		
+		showTrajectory.setSelected(true);
 		
 		JPanel boxesPanel = new JPanel(new GridLayout(N_CHECK_BOXES, CHECK_BOXES_COLUMNS));
 		boxesPanel.add(showSpeed);

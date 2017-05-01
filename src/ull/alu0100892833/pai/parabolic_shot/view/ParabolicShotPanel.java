@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import javax.swing.Timer;
 
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -15,9 +16,11 @@ import ull.alu0100892833.pai.parabolic_shot.ParabolicShot;
 
 public class ParabolicShotPanel extends JPanel {
 	private static final long serialVersionUID = 6796017625760582345L;
+	private static final int TIMER_DELAY = 350;
 	
 	private ProjectilePanel projectilePanel;
 	private ControlPanel controlPanel;
+	private Timer timer;
 	
 	public ParabolicShotPanel(Dimension size) {
 		projectilePanel = new ProjectilePanel(new ParabolicShot(ControlPanel.INITIAL_SPEED, ControlPanel.INITIAL_ANGLE, ControlPanel.INITIAL_HEIGHT));
@@ -47,10 +50,23 @@ public class ParabolicShotPanel extends JPanel {
 		this.controlPanel = controlPanel;
 	}
 	
-	public void setListeners() {		
-		controlPanel.setListeners(new ButtonsListener(), new SlidersListener(), new BoxesListener());
+	public void setListeners() {	
+		ButtonsListener buttonsListener = new ButtonsListener();
+		timer = new Timer(TIMER_DELAY, buttonsListener);
+		controlPanel.setListeners(buttonsListener, new SlidersListener(), new BoxesListener());
+	}
+	
+	private void startTimer() {
+		timer.start();
+	}
+	
+	private void stopTimer() {
+		timer.stop();
 	}
 
+	public Timer getTimer() {
+		return timer;
+	}
 	
 	
 	
@@ -65,24 +81,57 @@ public class ParabolicShotPanel extends JPanel {
 	class ButtonsListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+			if (e.getSource() == controlPanel.getThrowButton()) {
+				ParabolicShot newShot = new ParabolicShot(controlPanel.getSpeedSlider().getValue(), 
+						controlPanel.getAngleSlider().getValue(), 
+						controlPanel.getHeightSlider().getValue());
+				projectilePanel.newData(newShot);
+				startTimer();
+			} else if (e.getSource() == controlPanel.getPauseButton()) {
+				stopTimer();
+			} else if (e.getSource() == controlPanel.getResetButton()) {
+				stopTimer();
+				projectilePanel.reset();
+			} else if (e.getSource() == getTimer()) {
+				projectilePanel.timePasses();
+				revalidate();
+				repaint();
+			}
 		}
 	}
 	
 	class SlidersListener implements ChangeListener {
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			// TODO Auto-generated method stub
-			
+			/*if (e.getSource() == controlPanel.getSpeedSlider()) {
+				projectilePanel.getCurrentData().setOutputSpeed((int) controlPanel.getSpeedSlider().getValue());
+			} else if (e.getSource() == controlPanel.getHeightSlider()) {
+				projectilePanel.getCurrentData().setInitialHeight((int) controlPanel.getHeightSlider().getValue());
+			} else if (e.getSource() == controlPanel.getAngleSlider()) {
+				projectilePanel.getCurrentData().setStartingAngle((int) controlPanel.getAngleSlider().getValue());
+			}*/
 		}
 	}
 	
 	class BoxesListener implements ItemListener {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
-			// TODO Auto-generated method stub
-			
+			if (e.getSource() == controlPanel.getShowPositionVector()) {
+				if (e.getStateChange() == ItemEvent.SELECTED)
+					projectilePanel.setShowingPositionVector(true);
+				else
+					projectilePanel.setShowingPositionVector(false);
+			} else if (e.getSource() == controlPanel.getShowSpeed()) {
+				if (e.getStateChange() == ItemEvent.SELECTED)
+					projectilePanel.setShowingComplementaryData(true);
+				else
+					projectilePanel.setShowingComplementaryData(false);
+			} else if (e.getSource() == controlPanel.getShowTrajectory()) {
+				if (e.getStateChange() == ItemEvent.SELECTED)
+					projectilePanel.setDrawingTrajectory(true);
+				else
+					projectilePanel.setDrawingTrajectory(false);
+			}
 		}
 	}
 	
