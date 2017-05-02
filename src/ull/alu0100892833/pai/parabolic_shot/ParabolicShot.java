@@ -24,7 +24,7 @@ public class ParabolicShot {
 	 */
 	public ParabolicShot(double outputSpeed, int launchAngle, int initialHeight) {
 		this.outputSpeed = outputSpeed;
-		this.launchAngle = launchAngle;
+		this.launchAngle = Math.toRadians(launchAngle);
 		this.initialHeight = initialHeight; 
 	}
 	
