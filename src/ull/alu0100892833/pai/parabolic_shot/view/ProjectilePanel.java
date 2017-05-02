@@ -1,11 +1,14 @@
 package ull.alu0100892833.pai.parabolic_shot.view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import ull.alu0100892833.pai.parabolic_shot.ParabolicShot;
@@ -18,29 +21,44 @@ public class ProjectilePanel extends JPanel {
 	private static final int STARTING_TIME = 0;
 	private static final int TWO_SIDES = 2;
 	private static final int SMALL_LINE_LENGTH = 5;
-	private static final int POINT_RADIUS = 5;
+	private static final int POINT_RADIUS = 3;
 	private static final int LINE_EXTRA_THICKNESS = 1;
 	private static final int POINT_DIAMETER = 2 * POINT_RADIUS;
 	private static final Color[] STROKE_COLORS = {Color.BLACK, Color.YELLOW, Color.GREEN, Color.RED, Color.BLUE};
+	private static final double TIME_INCREASING = 0.05;
 
 	private ArrayList<ParabolicShot> data;
 	private ArrayList<Color> colors;
 	private int xValues, yValues, currentTime, currentData;
 	private boolean drawingTrajectory, showingComplementaryData, showingPositionVector;
+	private JLabel time, vy, vx, maxHeight, flightTime;
+	private JPanel informationPanel;
 	
-	public ProjectilePanel(ParabolicShot shot) {
+	public ProjectilePanel() {
 		this.currentData = NO_DATA;
 		this.data = new ArrayList<>();
 		this.colors = new ArrayList<>();
-		newData(shot);
-		this.colors.add(getRandomColor());
 		
-		this.xValues = shot.distance();
-		this.yValues = shot.maximumHeight();
+		estimateXValues();
+		estimateYValues();
 		this.currentTime = STARTING_TIME;
 		this.drawingTrajectory = true;
-		this.showingComplementaryData = true; 
+		this.showingComplementaryData = false; 
 		this.showingPositionVector = false;
+		
+		informationPanel = new JPanel();
+		informationPanel.setLayout(new BoxLayout(informationPanel, BoxLayout.Y_AXIS));
+		time = new JLabel("");
+		vx = new JLabel("");
+		vy = new JLabel("");
+		maxHeight = new JLabel("");
+		flightTime = new JLabel("");
+		informationPanel.add(time);
+		informationPanel.add(vx);
+		informationPanel.add(vy);
+		informationPanel.add(maxHeight);
+		informationPanel.add(flightTime);
+		add(informationPanel, BorderLayout.EAST);
 	}
 	
 	public ArrayList<ParabolicShot> getData() {
@@ -48,6 +66,8 @@ public class ProjectilePanel extends JPanel {
 	}
 
 	public ParabolicShot getCurrentData() {
+		if (getData().isEmpty())
+			return null;
 		if (currentData == NO_DATA)
 			return data.get(FIRST_DATA);
 		return data.get(currentData);
@@ -58,6 +78,10 @@ public class ProjectilePanel extends JPanel {
 		colors.add(getRandomColor());
 		if (currentData == NO_DATA)
 			currentData = FIRST_DATA;
+		else
+			currentData++;
+		estimateXValues();
+		estimateYValues();
 	}
 	
 	private Color getColorFor(int iterator) {
@@ -120,32 +144,33 @@ public class ProjectilePanel extends JPanel {
 		setCurrentTime(STARTING_TIME);
 	}
 	
-	private int realX(int xValue) {
-		int xRealPosition = getOrigin().x + horizontalValuesSeparation() * xValue;
-		return xRealPosition;
+	private int realX(double xValue) {
+		double xRealPosition = getOrigin().x + horizontalValuesSeparation() * xValue;
+		return (int) xRealPosition;
 	}
 	
-	private int realY(int yValue) {
-		int yRealPosition = getOrigin().y - verticalValuesSeparation() * yValue;
-		return yRealPosition;
+	private int realY(double yValue) {
+		double yRealPosition = getOrigin().y - verticalValuesSeparation() * yValue;
+		return (int) yRealPosition;
 	}
 	
 	public void estimateXValues() {
-		setxValues(getMaximumDistanceFromData());
+		setxValues((int) (getMaximumDistanceFromData() + GAP_PROPORTION));
 	}
 	
 	public void estimateYValues() {
-		setyValues(getMaximumHeightFromData());
+		setyValues((int) (getMaximumHeightFromData() + GAP_PROPORTION));
 	}
+	
+	
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		paintAxis(g);
-		if (isShowingComplementaryData())
-			paintInformation(g);
 		if ((isDrawingTrajectory()) && (currentData != NO_DATA))
 			paintTrajectory(g);
-		paintReferencePoints(g);
+		if (isShowingComplementaryData())
+			paintInformation(g);
 	}
 	
 	private void paintAxis(Graphics graphics) {
@@ -153,17 +178,17 @@ public class ProjectilePanel extends JPanel {
 		graphics.setColor(Color.BLACK);
 		
 		// DRAW X-AXIS
-		graphics.drawLine(origin.x, origin.y, realX(getMaximumDistanceFromData()), origin.y);
+		graphics.drawLine(origin.x, origin.y, realX(getxValues()), origin.y);
 		graphics.drawLine(origin.x, origin.y + LINE_EXTRA_THICKNESS, 
-				realX(getMaximumDistanceFromData()), origin.y + LINE_EXTRA_THICKNESS);
+				realX(getxValues()), origin.y + LINE_EXTRA_THICKNESS);
 		graphics.drawLine(origin.x, origin.y - LINE_EXTRA_THICKNESS, 
-				realX(getMaximumDistanceFromData()), origin.y - LINE_EXTRA_THICKNESS);
+				realX(getxValues()), origin.y - LINE_EXTRA_THICKNESS);
 		// DRAW Y-AXIS
-		graphics.drawLine(origin.x, origin.y, origin.x, realY(getMaximumHeightFromData()));
+		graphics.drawLine(origin.x, origin.y, origin.x, realY(getyValues()));
 		graphics.drawLine(origin.x + LINE_EXTRA_THICKNESS, origin.y, 
-				origin.x + LINE_EXTRA_THICKNESS, realY(getMaximumHeightFromData()));
+				origin.x + LINE_EXTRA_THICKNESS, realY(getyValues()));
 		graphics.drawLine(origin.x - LINE_EXTRA_THICKNESS, origin.y, 
-				origin.x - LINE_EXTRA_THICKNESS, realY(getMaximumHeightFromData()));
+				origin.x - LINE_EXTRA_THICKNESS, realY(getyValues()));
 		
 		// PAINT THE SMALL LINES SEPARATING VALUES FOR THE X-AXIS
 		for (int xIterator = 0; xIterator <= getxValues(); xIterator++) {
@@ -178,17 +203,38 @@ public class ProjectilePanel extends JPanel {
 	}
 	
 	private void paintInformation(Graphics graphics) {
-		// TODO pintar toda la información
+		if (getCurrentData() != null) {
+			time.setText("t: " + getCurrentTime());
+			vx.setText("vx: " + getCurrentData().outputSpeedHorizontalComponent());
+			vy.setText("vy: " + getCurrentData().actualVerticalSpeed(getCurrentTime()));
+			maxHeight.setText("MaxHeight: " + getCurrentData().maximumHeight());
+			flightTime.setText("Flight Time: " + getCurrentData().flightTime());
+		} else {
+			time.setText("");
+			vx.setText("");
+			vy.setText("");
+			maxHeight.setText("");
+			flightTime.setText("");
+		}
 	}
 	
 	private void paintTrajectory(Graphics graphics) {
 		for (int iterator = FIRST_DATA; iterator < getData().size(); iterator++) {
+			System.out.println("Pintando " + getData().get(iterator));
 			graphics.setColor(getColorFor(iterator));
-			int nValues = Math.min(getCurrentTime(), getData().get(iterator).distance());
-			for (int time = STARTING_TIME; time < nValues; time++) {
-				int x = realX(getData().get(iterator).getxAt(time));
-				int y = realY(getData().get(iterator).getyAt(time));
-				paintPoint(graphics, x, y);
+			if (getData().get(iterator) == getCurrentData()) {
+				for (double time = STARTING_TIME; time <= getCurrentTime(); time += TIME_INCREASING) {
+					int x = realX(getData().get(iterator).getxAt(time));
+					int y = realY(getData().get(iterator).getyAt(time));
+					System.out.println("Punto [" + x + ", " + y + "]");
+					paintPoint(graphics, x, y);
+				}
+			} else {
+				for (double time = STARTING_TIME; time <= getData().get(iterator).flightTime(); time += TIME_INCREASING) {
+					int x = realX(getData().get(iterator).getxAt(time));
+					int y = realY(getData().get(iterator).getyAt(time));
+					paintPoint(graphics, x, y);
+				}
 			}
 		}
 	}
@@ -197,6 +243,8 @@ public class ProjectilePanel extends JPanel {
 		graphics.fillOval(x - POINT_RADIUS, y - POINT_RADIUS, POINT_DIAMETER, POINT_DIAMETER);
 	}
 	
+	@SuppressWarnings("unused")
+	@Deprecated
 	private void paintReferencePoints(Graphics graphics) {
 		graphics.setColor(Color.BLACK);
 		for (ParabolicShot data : getData()) {
@@ -237,8 +285,8 @@ public class ProjectilePanel extends JPanel {
 		return range / getyValues();
 	}
 	
-	private int getMaximumDistanceFromData() {
-		int maximumDistance = (int) Double.NEGATIVE_INFINITY;
+	private double getMaximumDistanceFromData() {
+		double maximumDistance = Double.NEGATIVE_INFINITY;
 		for (ParabolicShot shot : getData()) {
 			if (shot.distance() > maximumDistance)
 				maximumDistance = shot.distance();
@@ -247,14 +295,29 @@ public class ProjectilePanel extends JPanel {
 		return maximumDistance;
 	}
 	
-	private int getMaximumHeightFromData() {
-		int maximumHeight = (int) Double.NEGATIVE_INFINITY;
+	private double getMaximumHeightFromData() {
+		double maximumHeight = Double.NEGATIVE_INFINITY;
 		for (ParabolicShot shot : getData()) {
 			if (shot.maximumHeight() > maximumHeight)
 				maximumHeight = shot.maximumHeight();
 		}
 		
 		return maximumHeight;
+	}
+	
+	private double getMaximumFlightTime() {
+		double maximumFT = Double.NEGATIVE_INFINITY;
+		for (ParabolicShot shot : getData()) {
+			if (shot.flightTime() > maximumFT)
+				maximumFT = shot.flightTime();
+		}
+		return maximumFT;
+	}
+	
+	public boolean enoughTime() {
+		if (getCurrentTime() > getMaximumFlightTime())
+			return true;
+		return false;
 	}
 	
 	public void reset() {

@@ -8,14 +8,14 @@ import javax.swing.JFrame;
 
 public class ParabolicShotWindow extends JFrame {
 	private static final long serialVersionUID = -1729082629819255742L;
-	private static final int WIDTH_PROPORTION = 2;
-	private static final int HEIGHT_PROPORTION = 2;
+	private static final double WIDTH_PROPORTION = 1.2;
+	private static final double HEIGHT_PROPORTION = 1.2;
 	
 	private ParabolicShotPanel mainPanel;
 	
 	public ParabolicShotWindow() {
 		Dimension fullScreen = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension size = new Dimension((int) fullScreen.getWidth() / WIDTH_PROPORTION, (int) fullScreen.getHeight() / HEIGHT_PROPORTION);
+		Dimension size = new Dimension((int) (fullScreen.getWidth() / WIDTH_PROPORTION), (int) (fullScreen.getHeight() / HEIGHT_PROPORTION));
 		mainPanel = new ParabolicShotPanel(size);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

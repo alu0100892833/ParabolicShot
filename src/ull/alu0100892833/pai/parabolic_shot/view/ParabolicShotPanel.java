@@ -9,8 +9,6 @@ import java.awt.event.ItemListener;
 import javax.swing.Timer;
 
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import ull.alu0100892833.pai.parabolic_shot.ParabolicShot;
 
@@ -23,7 +21,7 @@ public class ParabolicShotPanel extends JPanel {
 	private Timer timer;
 	
 	public ParabolicShotPanel(Dimension size) {
-		projectilePanel = new ProjectilePanel(new ParabolicShot(ControlPanel.INITIAL_SPEED, ControlPanel.INITIAL_ANGLE, ControlPanel.INITIAL_HEIGHT));
+		projectilePanel = new ProjectilePanel();
 		controlPanel = new ControlPanel();
 		
 		setLayout(new BorderLayout());
@@ -53,7 +51,7 @@ public class ParabolicShotPanel extends JPanel {
 	public void setListeners() {	
 		ButtonsListener buttonsListener = new ButtonsListener();
 		timer = new Timer(TIMER_DELAY, buttonsListener);
-		controlPanel.setListeners(buttonsListener, new SlidersListener(), new BoxesListener());
+		controlPanel.setListeners(buttonsListener, new BoxesListener());
 	}
 	
 	private void startTimer() {
@@ -85,31 +83,24 @@ public class ParabolicShotPanel extends JPanel {
 				ParabolicShot newShot = new ParabolicShot(controlPanel.getSpeedSlider().getValue(), 
 						controlPanel.getAngleSlider().getValue(), 
 						controlPanel.getHeightSlider().getValue());
-				projectilePanel.newData(newShot);
+				if (!newShot.equals(projectilePanel.getCurrentData()))
+					projectilePanel.newData(newShot);
+				projectilePanel.resetTime();
 				startTimer();
 			} else if (e.getSource() == controlPanel.getPauseButton()) {
 				stopTimer();
 			} else if (e.getSource() == controlPanel.getResetButton()) {
 				stopTimer();
 				projectilePanel.reset();
+				revalidate();
+				repaint();
 			} else if (e.getSource() == getTimer()) {
 				projectilePanel.timePasses();
+				if (projectilePanel.enoughTime())
+					stopTimer();
 				revalidate();
 				repaint();
 			}
-		}
-	}
-	
-	class SlidersListener implements ChangeListener {
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			/*if (e.getSource() == controlPanel.getSpeedSlider()) {
-				projectilePanel.getCurrentData().setOutputSpeed((int) controlPanel.getSpeedSlider().getValue());
-			} else if (e.getSource() == controlPanel.getHeightSlider()) {
-				projectilePanel.getCurrentData().setInitialHeight((int) controlPanel.getHeightSlider().getValue());
-			} else if (e.getSource() == controlPanel.getAngleSlider()) {
-				projectilePanel.getCurrentData().setStartingAngle((int) controlPanel.getAngleSlider().getValue());
-			}*/
 		}
 	}
 	

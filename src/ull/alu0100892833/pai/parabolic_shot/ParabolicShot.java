@@ -12,8 +12,8 @@ public class ParabolicShot {
 	private static final double HALF = 0.5;
 	private static final int NULL_VALUE = 0;
 	
-	private double outputSpeed;
-	private int initialHeight, launchAngle;
+	private double outputSpeed, launchAngle;
+	private int initialHeight;
 
 
 	/**
@@ -34,9 +34,9 @@ public class ParabolicShot {
 	 * @param launchAngle Ángulo de lanzamiento.
 	 * @param initialHeight Altura inicial desde la que se dispara el proyectil.
 	 */
-	public void changeValues(double outputSpeed, int launchAngle, int initialHeight) {
+	public void changeValues(double outputSpeed, double launchAngle, int initialHeight) {
 		this.outputSpeed = outputSpeed;
-		this.launchAngle = launchAngle;
+		this.launchAngle = Math.toRadians(launchAngle);
 		this.initialHeight = initialHeight; 
 	}
 
@@ -60,7 +60,7 @@ public class ParabolicShot {
 	 * Retorna el ángulo inicial.
 	 * @return
 	 */
-	public int getStartingAngle() {
+	public double getStartingAngle() {
 		return launchAngle;
 	}
 
@@ -68,7 +68,7 @@ public class ParabolicShot {
 	 * Modificar el ángulo inicial.
 	 * @param startingAngle
 	 */
-	public void setStartingAngle(int startingAngle) {
+	public void setStartingAngle(double startingAngle) {
 		this.launchAngle = startingAngle;
 	}
 
@@ -103,15 +103,24 @@ public class ParabolicShot {
 	public double outputSpeedVerticalComponent() {
 		return getOutputSpeed() * Math.sin(launchAngle);
 	}
+	
+	/**
+	 * Obtener la velocidad en y en un determinado momento.
+	 * @param time
+	 * @return
+	 */
+	public double actualVerticalSpeed(double time) {
+		return outputSpeedVerticalComponent() - GRAVITY_ACCELERATION * time;
+	}
 
 	/**
 	 * Obtener la posición en X tras un determinado tiempo.
 	 * @param time Tiempo pasado.
 	 * @return Componente X.
 	 */
-	public int getxAt(int time) {
+	public double getxAt(double time) {
 		if (time <= flightTime())
-			return (int) outputSpeedHorizontalComponent() * time;
+			return outputSpeedHorizontalComponent() * time;
 		return NULL_VALUE;
 	}
 	
@@ -120,9 +129,9 @@ public class ParabolicShot {
 	 * @param time Tiempo pasado.
 	 * @return Componente Y.
 	 */
-	public int getyAt(int time) {
+	public double getyAt(double time) {
 		if (time <= flightTime())
-			return (int) (getInitialHeight() + outputSpeedVerticalComponent() * time - HALF * GRAVITY_ACCELERATION * Math.pow(time, 2));
+			return (getInitialHeight() + outputSpeedVerticalComponent() * time - HALF * GRAVITY_ACCELERATION * Math.pow(time, 2));
 		return NULL_VALUE;
 	}
 	
@@ -130,15 +139,15 @@ public class ParabolicShot {
 	 * Obtener el tiempo en el que el proyectil llega a su altura máxima.
 	 * @return
 	 */
-	public int maximumHeightTime() {
-		return (int) (outputSpeedVerticalComponent() / GRAVITY_ACCELERATION);
+	public double maximumHeightTime() {
+		return (outputSpeedVerticalComponent() / GRAVITY_ACCELERATION);
 	}
 	
 	/**
 	 * Obtener la altura máxima a la que llega el proyectil.
 	 * @return
 	 */
-	public int maximumHeight() {
+	public double maximumHeight() {
 		return getyAt(maximumHeightTime());
 	}
 	
@@ -147,9 +156,9 @@ public class ParabolicShot {
 	 * Este es el tiempo que tarda en llegar al suelo.
 	 * @return
 	 */
-	private int flightTime() {
-		double numerator = outputSpeedVerticalComponent() + Math.sqrt(Math.pow(outputSpeedVerticalComponent(), 2) - 2 * GRAVITY_ACCELERATION * getInitialHeight());
-		return (int) (numerator / GRAVITY_ACCELERATION);
+	public double flightTime() {
+		double numerator = outputSpeedVerticalComponent() + Math.sqrt(Math.pow(outputSpeedVerticalComponent(), 2) + 2 * GRAVITY_ACCELERATION * getInitialHeight());
+		return (numerator / GRAVITY_ACCELERATION);
 	}
 	
 	/**
@@ -157,8 +166,25 @@ public class ParabolicShot {
 	 * Es la distancia recorrida antes de caer.
 	 * @return
 	 */
-	public int distance() {
+	public double distance() {
 		return getxAt(flightTime());
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ParabolicShot))
+			return false;
+		ParabolicShot comparing = (ParabolicShot) obj;
+		if ((comparing.getInitialHeight() == this.getInitialHeight())
+				&& (comparing.getOutputSpeed() == this.getOutputSpeed())
+				&& (comparing.getStartingAngle() == this.getStartingAngle()))
+			return true;
+		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return "[Speed: " + getOutputSpeed() + ", Angle: " + getStartingAngle() + ", Height: " + getInitialHeight() + "]";
 	}
 }
 

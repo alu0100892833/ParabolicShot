@@ -10,7 +10,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeListener;
 
 
 public class ControlPanel extends JPanel {
@@ -25,7 +24,7 @@ public class ControlPanel extends JPanel {
 	private static final int MAX_INITIAL_SPEED = 50;
 	public static final int INITIAL_SPEED = 25;
 	private static final int MIN_INITIAL_ANGLE = 5;
-	private static final int MAX_INITIAL_ANGLE = 88;
+	private static final int MAX_INITIAL_ANGLE = 80;
 	public static final int INITIAL_ANGLE = 45;
 	public static final int INITIAL_HEIGHT = 0;
 	private static final int MIN_INITIAL_HEIGHT = 0;
@@ -91,9 +90,8 @@ public class ControlPanel extends JPanel {
 		add(boxesPanel);
 	}
 	
-	public void setListeners(ActionListener al, ChangeListener cl, ItemListener il) {
+	public void setListeners(ActionListener al, ItemListener il) {
 		addActionListener(al);
-		addChangeListener(cl);
 		addItemListener(il);
 	}
 	
@@ -101,12 +99,6 @@ public class ControlPanel extends JPanel {
 		throwButton.addActionListener(al);
 		pauseButton.addActionListener(al);
 		resetButton.addActionListener(al);
-	}
-	
-	private void addChangeListener(ChangeListener cl) {
-		speedSlider.addChangeListener(cl);
-		angleSlider.addChangeListener(cl);
-		heightSlider.addChangeListener(cl);
 	}
 	
 	private void addItemListener(ItemListener il) {
