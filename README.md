@@ -1,2 +1,3 @@
-# P12ParabolicShot
-Aplicación en Java que permite simular el tiro parabólico de un proyectil. Asignatura de Programación de Aplicaciones Interactivas, ETSII, ULL.
+# Parabolic Shot
+
+This Java program offers a graphic user interface for simulating the launch of a projectile fired from a given point with an initial firing speed and angle.
